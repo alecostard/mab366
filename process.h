@@ -30,29 +30,29 @@ struct IOList {
 
 typedef struct IOList IOList;
 
-struct Process {
+struct PCB {
     int pid;
     int required_service;
     int realized_service;
     IOList *ios;
 };
 
-typedef struct Process Process;
+typedef struct PCB PCB;
 
-Process *new_process(int pid, int required_service);
+PCB *new_process(int pid, int required_service);
 
 IOList *new_io_list();
 
 IOReq *new_io_request(IOType type, int start, int duration);
 
-void add_io(Process *process, IOType type, int start, int duration);
+void add_io(PCB *pcb, IOType type, int start, int duration);
 
-bool has_ios(Process *process);
+bool has_ios(PCB *pcb);
 
-bool process_finished(Process *p);
+bool process_finished(PCB *pcb);
 
-IOReq *peek_io(Process *p);
+IOReq *peek_io(PCB *pcb);
 
-IOReq *pop_io(Process *p);
+IOReq *pop_io(PCB *pcb);
 
 #endif

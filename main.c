@@ -19,47 +19,47 @@ int main(void) {
 
     while (!empty_event_list(events)) {
         Event *event = pop_event(events);
-        Process *process = event->process;
+        PCB *pcb = event->pcb;
         time = event->time;
         printf("[t = %3d] ", time);
 
         switch (event->type) {
             case ARRIVAL:
-                printf("chegada do processo %d\n", process->pid);
-                enqueue(ready, process);
+                printf("chegada do processo %d\n", pcb->pid);
+                enqueue(ready, pcb);
                 if (cpu_idle) {
                     add_event(events, time, QUANTUM_START, dequeue(ready));
                 }
                 break;
             case QUANTUM_START:
-                printf("início de execução do processo %d\n", process->pid);
+                printf("início de execução do processo %d\n", pcb->pid);
                 cpu_idle = false;
 
-                if (has_ios(process)) {
-                    int time_to_io = peek_io(process)->start - process->realized_service;
+                if (has_ios(pcb)) {
+                    int time_to_io = peek_io(pcb)->start - pcb->realized_service;
                     if (time_to_io > quantum) {
-                        process->realized_service += quantum;
-                        add_event(events, time + quantum, QUANTUM_END, process);
+                        pcb->realized_service += quantum;
+                        add_event(events, time + quantum, QUANTUM_END, pcb);
                     } else {
-                        process->realized_service += time_to_io;
-                        add_event(events, time + time_to_io, IO_REQUEST, process);
+                        pcb->realized_service += time_to_io;
+                        add_event(events, time + time_to_io, IO_REQUEST, pcb);
                     }
                 } else {
-                    int time_to_finish = process->required_service - process->realized_service;
+                    int time_to_finish = pcb->required_service - pcb->realized_service;
                     if (time_to_finish >= quantum) {
-                        process->realized_service += quantum;
-                        add_event(events, time + quantum, QUANTUM_END, process);
+                        pcb->realized_service += quantum;
+                        add_event(events, time + quantum, QUANTUM_END, pcb);
                     } else {
-                        process->realized_service += time_to_finish;
-                        add_event(events, time + time_to_finish, QUANTUM_END, process);
+                        pcb->realized_service += time_to_finish;
+                        add_event(events, time + time_to_finish, QUANTUM_END, pcb);
                     }
                 }
                 break;
 
             case QUANTUM_END:
-                printf("fim de execução do processo %d\n", process->pid);
-                if (!process_finished(process)) {
-                    enqueue(ready, process);
+                printf("fim de execução do processo %d\n", pcb->pid);
+                if (!process_finished(pcb)) {
+                    enqueue(ready, pcb);
                 }
                 if (ready->length > 0) {
                     add_event(events, time, QUANTUM_START, dequeue(ready));
@@ -69,8 +69,8 @@ int main(void) {
                 break;
 
             case IO_REQUEST:
-                printf("processo %d pediu IO\n", process->pid);
-                add_event(events, time, IO_START, process);
+                printf("processo %d pediu IO\n", pcb->pid);
+                add_event(events, time, IO_START, pcb);
                 if (ready->length > 0) {
                     add_event(events, time, QUANTUM_START, dequeue(ready));
                 } else {
@@ -79,13 +79,13 @@ int main(void) {
                 break;
 
             case IO_START:
-                printf("IO do processo %d iniciou\n", process->pid);
-                add_event(events, time + pop_io(process)->duration, IO_END, process);
+                printf("IO do processo %d iniciou\n", pcb->pid);
+                add_event(events, time + pop_io(pcb)->duration, IO_END, pcb);
                 break;
 
             case IO_END:
-                printf("IO do processo %d finalizou\n", process->pid);
-                enqueue(ready, process);
+                printf("IO do processo %d finalizou\n", pcb->pid);
+                enqueue(ready, pcb);
                 if (cpu_idle) {
                     add_event(events, time, QUANTUM_START, dequeue(ready));
                 }
@@ -119,11 +119,11 @@ EventList *exercicio2() {
 }
 
 EventList *exercicio3() {
-    Process *p1 = new_process(1, 13);
-    Process *p2 = new_process(2, 11);
-    Process *p3 = new_process(3,  7);
-    Process *p4 = new_process(4,  8);
-    Process *p5 = new_process(5, 16);
+    PCB *p1 = new_process(1, 13);
+    PCB *p2 = new_process(2, 11);
+    PCB *p3 = new_process(3,  7);
+    PCB *p4 = new_process(4,  8);
+    PCB *p5 = new_process(5, 16);
 
     add_io(p1, 0, 4, 7);
     add_io(p2, 1, 2, 4);

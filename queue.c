@@ -8,7 +8,7 @@ Queue *new_queue(void) {
     return q;
 }
 
-void enqueue(Queue *q, Process *p) {
+void enqueue(Queue *q, PCB *p) {
     QueueNode *node = malloc(sizeof(QueueNode));
     node->val = p;
     node->next = NULL;
@@ -24,14 +24,14 @@ void enqueue(Queue *q, Process *p) {
 }
 
 /* fila não pode estar vazia */
-Process *peek(Queue *q) {
+PCB *peek(Queue *q) {
     return q->next->val;
 }
 
 /* fila não pode estar vazia */
-Process *dequeue(Queue *q) {
+PCB *dequeue(Queue *q) {
     QueueNode *n = q->next;
-    Process *result = n->val;
+    PCB *result = n->val;
     
     q->next = q->next->next;
     q->length--;

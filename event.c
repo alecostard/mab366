@@ -1,10 +1,10 @@
 #include "event.h"
 
-Event *new_event(int time, EventType type, Process *process) {
+Event *new_event(int time, EventType type, PCB *pcb) {
     Event *event = malloc(sizeof(Event));
     event->time = time;
     event->type = type;
-    event->process = process;
+    event->pcb = pcb;
     return event;
 }
 
@@ -38,8 +38,8 @@ bool empty_event_list(EventList *list) {
 
 //void destroy_event_list(EventList *event_list);
 
-void add_event(EventList *list, int time, EventType type, Process *process) {
-    Event *event = new_event(time, type, process);
+void add_event(EventList *list, int time, EventType type, PCB *pcb) {
+    Event *event = new_event(time, type, pcb);
     EventListNode *node = malloc(sizeof(EventListNode));
     node->event = event;
 

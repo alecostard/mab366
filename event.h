@@ -14,7 +14,7 @@ typedef enum EventType EventType;
 struct Event {
     int time;
     EventType type;
-    Process *process;
+    PCB *pcb;
 };
 
 typedef struct Event Event;
@@ -32,7 +32,7 @@ struct EventList {
 
 typedef struct EventList EventList;
 
-Event *new_event(int time, EventType type, Process *process);
+Event *new_event(int time, EventType type, PCB *pcb);
 
 void destroy_event(Event *event);
 
@@ -44,7 +44,7 @@ bool empty_event_list(EventList *list);
 
 //void destroy_event_list(EventList *list);
 
-void add_event(EventList *list, int time, EventType type, Process *process);
+void add_event(EventList *list, int time, EventType type, PCB *pcb);
 
 Event *pop_event(EventList *list);
 

@@ -1,7 +1,7 @@
 #include "process.h"
 
-Process *new_process(int pid, int required_service) {
-    Process *p = malloc(sizeof(Process));
+PCB *new_process(int pid, int required_service) {
+    PCB *p = malloc(sizeof(PCB));
     p->pid = pid;
     p->required_service = required_service;
     p->realized_service = 0;
@@ -23,7 +23,7 @@ IOReq *new_io_request(IOType type, int start, int duration) {
     return req;
 }
 
-void add_io(Process *process, IOType type, int start, int duration) {
+void add_io(PCB *process, IOType type, int start, int duration) {
     IOList *list = process->ios;
     IONode *node = malloc(sizeof(IONode));
     node->req = new_io_request(type, start, duration);
@@ -40,32 +40,20 @@ void add_io(Process *process, IOType type, int start, int duration) {
     }
 }
 
-/* returns time spent running */
-// int execute_process(Process *p, int cpu_time) {
-//     if (p->realized_service + cpu_time <= p->required_service) {
-//         p->realized_service += cpu_time;
-//         return cpu_time;
-//     } else {
-//         int result = p->required_service - p->realized_service;
-//         p->realized_service = p->required_service;
-//         return result;
-//     }
-// }
-
-bool process_finished(Process *p) {
+bool process_finished(PCB *p) {
     return p->realized_service == p->required_service;
 }
 
-bool has_ios(Process *p) {
+bool has_ios(PCB *p) {
     return p->ios->head != NULL;
 }
 
 /* lista de io não pode estar vazia */
-IOReq *peek_io(Process *p) {
+IOReq *peek_io(PCB *p) {
     return p->ios->head->req;
 }
 
-IOReq *pop_io(Process *p) {
+IOReq *pop_io(PCB *p) {
     IONode *node = p->ios->head;
     IOReq *req = node->req;
 

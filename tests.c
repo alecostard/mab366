@@ -5,7 +5,7 @@
 #include "event.h"
 
 void process_tests() {
-    Process *p = new_process(1, 10);
+    PCB *p = new_process(1, 10);
 
     assert(1 == p->pid);
     assert(!process_finished(p));
@@ -22,9 +22,9 @@ void process_tests() {
 
 void queue_tests() {
     Queue *q = new_queue();
-    Process *p1 = new_process(1, 1);
-    Process *p2 = new_process(2, 1);
-    Process *p3 = new_process(3, 1);
+    PCB *p1 = new_process(1, 1);
+    PCB *p2 = new_process(2, 1);
+    PCB *p3 = new_process(3, 1);
 
     assert(0 == q->length);
 
@@ -56,13 +56,13 @@ void event_tests() {
     add_event(l, 2, ARRIVAL, new_process(3, 3));
 
     assert(!empty_event_list(l));   
-    assert(1 == l->head->event->process->pid);
-    assert(2 == l->head->next->event->process->pid);
-    assert(3 == l->head->next->next->event->process->pid);
+    assert(1 == l->head->event->pcb->pid);
+    assert(2 == l->head->next->event->pcb->pid);
+    assert(3 == l->head->next->next->event->pcb->pid);
 
-    assert(1 == pop_event(l)->process->pid);
-    assert(2 == pop_event(l)->process->pid);
-    assert(3 == pop_event(l)->process->pid);
+    assert(1 == pop_event(l)->pcb->pid);
+    assert(2 == pop_event(l)->pcb->pid);
+    assert(3 == pop_event(l)->pcb->pid);
     assert(empty_event_list(l));
 }
 

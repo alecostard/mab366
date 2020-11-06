@@ -6,7 +6,7 @@
 #include "process.h"
 
 struct QueueNode {
-    Process *val;
+    PCB *val;
     struct QueueNode *next;
 };
 
@@ -22,11 +22,11 @@ typedef struct Queue Queue;
 
 Queue *new_queue(void);
 
-void enqueue(Queue *q, Process *p);
+void enqueue(Queue *q, PCB *p);
 
-Process *peek(Queue *q);
+PCB *peek(Queue *q);
 
-Process *dequeue(Queue *q);
+PCB *dequeue(Queue *q);
 
 void print_queue(Queue q);
 
