@@ -11,13 +11,24 @@ EventList *exercicio3();
 
 
 int main(void) {
-    run_scheduler(exercicio3(), 4);
+    // run_scheduler(exercicio3(), 4);
+    run_scheduler(setup(), 4);
     return 0;
 }
 
 EventList *setup() {
+    PCB *p1 = new_process(1, 10);
+    PCB *p2 = new_process(2, 10);
+    PCB *p3 = new_process(3, 30);
+
+    add_io(p1, DISK, 3, 5);
+    add_io(p2, TAPE, 1, 4);
+
     EventList *events = new_event_list();
-    add_event(events, 0, ARRIVAL, new_process(1, 10));
+    add_event(events, 0, ARRIVAL, p1);
+    add_event(events, 0, ARRIVAL, p2);
+    add_event(events, 0, ARRIVAL, p3);
+
     return events;    
 }
 

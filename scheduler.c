@@ -2,13 +2,15 @@
 
 int run_scheduler(EventList *events, int quantum) {
     Queue *ready[2] = {new_queue(), new_queue()};
-    int time = 0;
+    Queue *ioqueue[3] = {new_queue(), new_queue(), new_queue()};
+    bool io_idle[3] = {true, true, true};
     bool cpu_idle = true;
 
     while (!empty_event_list(events)) {
         Event *event = pop_event(events);
         PCB *pcb = event->pcb;
-        time = event->time;
+        IOType iotype;
+        int time = event->time;
         printf("[t = %3d] ", time);
 
         switch (event->type) {
@@ -35,7 +37,7 @@ int run_scheduler(EventList *events, int quantum) {
                     }
                 } else {
                     int time_to_finish = pcb->required_service - pcb->realized_service;
-                    if (time_to_finish >= quantum) {  // > ou >= ?
+                    if (time_to_finish > quantum) {
                         pcb->realized_service += quantum;
                         add_event(events, time + quantum, QUANTUM_END, pcb);
                     } else {
@@ -61,8 +63,14 @@ int run_scheduler(EventList *events, int quantum) {
                 break;
 
             case IO_REQUEST:
-                printf("processo %d pediu IO\n", pcb->pid);
-                add_event(events, time, IO_START, pcb);
+                iotype = peek_io(pcb)->type;
+                printf("processo %d pediu IO do tipo %s\n", pcb->pid, io_to_s(iotype));
+
+                if (io_idle[iotype]) {
+                    add_event(events, time, IO_START, pcb);
+                } else {
+                    enqueue(ioqueue[iotype], pcb);
+                }
 
                 if (ready[HIGH]->length > 0) {
                     add_event(events, time, QUANTUM_START, dequeue(ready[HIGH]));
@@ -74,15 +82,36 @@ int run_scheduler(EventList *events, int quantum) {
                 break;
 
             case IO_START:
-                printf("IO do processo %d iniciou\n", pcb->pid);
-                add_event(events, time + pop_io(pcb)->duration, IO_END, pcb);
+                iotype = peek_io(pcb)->type;
+                printf("processo %d iniciou IO do tipo %s\n", pcb->pid, io_to_s(iotype));
+                io_idle[iotype] = false;
+                add_event(events, time + peek_io(pcb)->duration, IO_END, pcb);
                 break;
 
             case IO_END:
-                printf("IO do processo %d finalizou\n", pcb->pid);
-                enqueue(ready[HIGH], pcb);
+                iotype = peek_io(pcb)->type;
+                printf("processo %d finalizou IO do tipo %s\n", pcb->pid, io_to_s(iotype));
+                
+                if (iotype == DISK) {
+                    enqueue(ready[LOW], pcb);
+                } else {
+                    enqueue(ready[HIGH], pcb);
+                }
+
+                if (ioqueue[iotype]->length > 0) {
+                    add_event(events, time, IO_START, dequeue(ioqueue[iotype]));
+                } else {
+                    io_idle[iotype] = true;
+                }
+
+                pop_io(pcb);
+
                 if (cpu_idle) {
-                    add_event(events, time, QUANTUM_START, dequeue(ready[HIGH]));
+                    if (ready[HIGH]->length > 0) {
+                        add_event(events, time, QUANTUM_START, dequeue(ready[HIGH]));
+                    } else {
+                        add_event(events, time, QUANTUM_START, dequeue(ready[LOW]));
+                    }
                 }
                 break;
         }

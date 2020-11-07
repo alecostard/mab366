@@ -62,3 +62,16 @@ IOReq *pop_io(PCB *p) {
 
     return req;    
 }
+
+char *io_to_s(IOType type) {
+    switch (type) {
+        case DISK:
+            return "disco";
+        case TAPE:
+            return "fita";
+        case PRINTER:
+            return "impressora";
+        default:
+            return "dispositivo desconhecido";
+    }
+}

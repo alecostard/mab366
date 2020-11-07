@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 enum IOType {
-    PRINTER, DISK, TAPE
+    DISK, TAPE, PRINTER
 };
 
 typedef enum IOType IOType;
@@ -54,5 +54,9 @@ bool process_finished(PCB *pcb);
 IOReq *peek_io(PCB *pcb);
 
 IOReq *pop_io(PCB *pcb);
+
+IOReq *next_io(PCB *pcb);
+
+char *io_to_s(IOType type);
 
 #endif
