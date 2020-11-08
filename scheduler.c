@@ -85,7 +85,7 @@ int run_scheduler(EventList *events, int quantum) {
                 iotype = peek_io(pcb)->type;
                 printf("processo %d iniciou IO do tipo %s\n", pcb->pid, io_to_s(iotype));
                 io_idle[iotype] = false;
-                add_event(events, time + peek_io(pcb)->duration, IO_END, pcb);
+                add_event(events, time + io_duration(iotype), IO_END, pcb);
                 break;
 
             case IO_END:

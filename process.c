@@ -15,18 +15,17 @@ IOList *new_io_list() {
     return list;
 }
 
-IOReq *new_io_request(IOType type, int start, int duration) {
+IOReq *new_io_request(IOType type, int start) {
     IOReq *req = malloc(sizeof(IOReq));
     req->type = type;
     req->start = start;
-    req->duration = duration;
     return req;
 }
 
-void add_io(PCB *process, IOType type, int start, int duration) {
+void add_io(PCB *process, IOType type, int start) {
     IOList *list = process->ios;
     IONode *node = malloc(sizeof(IONode));
-    node->req = new_io_request(type, start, duration);
+    node->req = new_io_request(type, start);
     node->next = NULL;
 
     if (list->head == NULL) {
@@ -61,6 +60,19 @@ IOReq *pop_io(PCB *p) {
     free(node);
 
     return req;    
+}
+
+int io_duration(IOType type) {
+    switch (type) {
+        case DISK:
+            return 2;
+        case TAPE:
+            return 8;
+        case PRINTER:
+            return 12;
+        default:
+            return 0;
+    }
 }
 
 char *io_to_s(IOType type) {

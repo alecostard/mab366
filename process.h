@@ -12,7 +12,6 @@ typedef enum IOType IOType;
 struct IOReq {
     IOType type;
     int start;
-    int duration;
 };
 
 typedef struct IOReq IOReq;
@@ -43,9 +42,9 @@ PCB *new_process(int pid, int required_service);
 
 IOList *new_io_list();
 
-IOReq *new_io_request(IOType type, int start, int duration);
+IOReq *new_io_request(IOType type, int start);
 
-void add_io(PCB *pcb, IOType type, int start, int duration);
+void add_io(PCB *pcb, IOType type, int start);
 
 bool has_ios(PCB *pcb);
 
@@ -56,6 +55,8 @@ IOReq *peek_io(PCB *pcb);
 IOReq *pop_io(PCB *pcb);
 
 IOReq *next_io(PCB *pcb);
+
+int io_duration(IOType type);
 
 char *io_to_s(IOType type);
 

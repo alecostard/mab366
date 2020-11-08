@@ -1,78 +1,78 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "scheduler.h"
 #include "process.h"
 #include "event.h"
 
-EventList *setup();
-EventList *exercicio1();
-EventList *exercicio2();
-EventList *exercicio3();
+EventList *load_events(char *filename);
+Event *parse_line(char *line);
+IOType io_from_s(char *str);
 
-
-int main(void) {
-    // run_scheduler(exercicio3(), 4);
-    run_scheduler(setup(), 4);
+int main(int argc, char *argv[]) {
+    EventList *events = load_events(argv[1]);
+    int quantum = atoi(argv[2]);
+    run_scheduler(events, quantum);
     return 0;
 }
 
-EventList *setup() {
-    PCB *p1 = new_process(1, 10);
-    PCB *p2 = new_process(2, 10);
-    PCB *p3 = new_process(3, 30);
-
-    add_io(p1, DISK, 3, 5);
-    add_io(p2, TAPE, 1, 4);
-
+EventList *load_events(char *filename) {
+    FILE *fp;
+    char *line = NULL;
+    size_t len = 0;
     EventList *events = new_event_list();
-    add_event(events, 0, ARRIVAL, p1);
-    add_event(events, 0, ARRIVAL, p2);
-    add_event(events, 0, ARRIVAL, p3);
 
-    return events;    
-}
-
-EventList *exercicio1() {
-    EventList *events = new_event_list();
-    add_event(events, 0, ARRIVAL, new_process(1, 10));
-    add_event(events, 0, ARRIVAL, new_process(2,  1));
-    add_event(events, 0, ARRIVAL, new_process(3,  2));
-    add_event(events, 0, ARRIVAL, new_process(4,  1));
-    add_event(events, 0, ARRIVAL, new_process(5,  5));
-
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("Arquivo não encontrado: %s\n", filename);
+        exit(1);
+    }
+    getline(&line, &len, fp);
+    while (getline(&line, &len, fp) != -1) {
+        Event *e = parse_line(line);
+        add_event(events, e->time, e->type, e->pcb);
+    }
+    fclose(fp);
     return events;
 }
 
-EventList *exercicio2() {
-    EventList *events = new_event_list();
-    add_event(events,  0, ARRIVAL, new_process(1, 13));
-    add_event(events,  4, ARRIVAL, new_process(2, 11));
-    add_event(events,  5, ARRIVAL, new_process(3,  7));
-    add_event(events,  7, ARRIVAL, new_process(4,  8));
-    add_event(events, 10, ARRIVAL, new_process(5, 16));
+Event *parse_line(char *line) {
+    int pid;
+    int arrival;
+    int required_service;
+    char iostarts[64];
+    char iotypes[64];
 
-    return events;
+    sscanf(line, "%d %d %d %s %s", &pid, &arrival, &required_service, iostarts, iotypes);
+    
+    PCB *pcb = new_process(pid, required_service);
+
+    if (iostarts[0] != '-') {
+        char *save_start;
+        char *save_type;
+        char *next_start = strtok_r(iostarts, ",", &save_start);
+        char *next_type = strtok_r(iotypes, ",", &save_type);
+
+        while (next_start != NULL) {
+            add_io(pcb, io_from_s(next_type), atoi(next_start));
+            next_start = strtok_r(NULL, ",", &save_start);
+            next_type = strtok_r(NULL, ",", &save_type);
+        }
+    }
+
+    return new_event(arrival, ARRIVAL, pcb);
 }
-
-EventList *exercicio3() {
-    PCB *p1 = new_process(1, 13);
-    PCB *p2 = new_process(2, 11);
-    PCB *p3 = new_process(3,  7);
-    PCB *p4 = new_process(4,  8);
-    PCB *p5 = new_process(5, 16);
-
-    add_io(p1, 0, 4, 7);
-    add_io(p2, 1, 2, 4);
-    add_io(p2, 0, 6, 7);
-    add_io(p5, 0, 2, 7);
-    add_io(p5, 1, 7, 4);
-
-    EventList *events = new_event_list();
-    add_event(events, 0,  ARRIVAL, p1);
-    add_event(events, 4,  ARRIVAL, p2);
-    add_event(events, 5,  ARRIVAL, p3);
-    add_event(events, 7,  ARRIVAL, p4);
-    add_event(events, 10, ARRIVAL, p5);
-
-    return events;
+ 
+IOType io_from_s(char *str) {
+    if (str[0] == 'I') {
+        return PRINTER;
+    } else if (str[0] == 'D') {
+        return DISK;
+    } else if (str[0] == 'F') {
+        return TAPE;
+    } else {
+        printf("Dispositivo de IO não reconhecido: %s\n", str);
+        printf("Dispositivos reconhecidos: I, D, F\n");
+        exit(1);
+     }
 }
