@@ -73,7 +73,7 @@ IOReq *pop_io(PCB *p) {
 int io_duration(IOType type) {
     switch (type) {
         case DISK:
-            return 2;
+            return 4;
         case TAPE:
             return 8;
         case PRINTER:
