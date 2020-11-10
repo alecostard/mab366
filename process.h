@@ -40,6 +40,8 @@ typedef struct PCB PCB;
 
 PCB *new_process(int pid, int required_service);
 
+void destroy_pcb(PCB *pcb);
+
 IOList *new_io_list();
 
 IOReq *new_io_request(IOType type, int start);

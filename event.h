@@ -6,7 +6,7 @@
 #include "process.h"
 
 enum EventType {
-    QUANTUM_START, IO_END, ARRIVAL, QUANTUM_END, IO_REQUEST, IO_START
+    QUANTUM_START, IO_END, ARRIVAL, QUANTUM_END, IO_START, IO_REQUEST
 };
 
 typedef enum EventType EventType;

@@ -9,6 +9,14 @@ PCB *new_process(int pid, int required_service) {
     return p;
 }
 
+void destroy_pcb(PCB *pcb) {
+    while (pcb->ios->head != NULL) {
+        free(pop_io(pcb));
+    }
+    free(pcb->ios);
+    free(pcb);
+}
+
 IOList *new_io_list() {
     IOList *list = malloc(sizeof(IOList));
     list->head = NULL;

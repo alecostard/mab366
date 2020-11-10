@@ -51,6 +51,8 @@ int run_scheduler(EventList *events, int quantum) {
                 printf("fim de execução do processo %d\n", pcb->pid);
                 if (!process_finished(pcb)) {
                     enqueue(ready[LOW], pcb);
+                } else {
+                    destroy_pcb(pcb);
                 }
                 
                 if (ready[HIGH]->length > 0) {
